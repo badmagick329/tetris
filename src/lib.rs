@@ -56,7 +56,7 @@ pub fn run() {
             }
         }
         game.update();
-        term.draw_board(game.board_ref());
+        term.draw_board(game.board_ref(), game.preview_board_ref(), game.score);
     }
     terminal::disable_raw_mode().unwrap();
 }

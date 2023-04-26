@@ -20,18 +20,26 @@ pub enum Move {
 
 pub struct Game {
     board: [[u8; WIDTH]; HEIGHT],
+    preview_board: [[u8; 4]; 4],
     pub active_shape: Option<Shape>,
+    preview_shape: Option<Shape>,
     game_over: bool,
     fall_timer: Instant,
+    next_shape: ShapeType,
+    pub score: usize,
 }
 
 impl Game {
     pub fn new() -> Self {
         Game {
             board: [[0; WIDTH]; HEIGHT],
+            preview_board: [[0; 4]; 4],
             active_shape: None,
+            preview_shape: None,
             game_over: false,
             fall_timer: Instant::now(),
+            next_shape: ShapeType::random(),
+            score: 0,
         }
     }
 
@@ -63,6 +71,7 @@ impl Game {
                     .as_ref()
                     .unwrap()
                     .to_coords(self.active_shape.as_ref().unwrap().dir);
+                // No longer falling
                 if old_coords == new_coords {
                     self.shape_to_board();
                     self.clear_completed();
@@ -72,7 +81,8 @@ impl Game {
             }
         } else {
             let random_shape = ShapeType::random();
-            self.spawn(random_shape, WIDTH / 2, 0);
+            self.spawn(self.next_shape, WIDTH / 2, 0);
+            self.next_shape = random_shape;
         }
         // Update shape position
         if let Some(shape) = &mut self.active_shape {
@@ -84,6 +94,8 @@ impl Game {
                 self.board[y as usize][x as usize] = shape.shape_type as u8;
             }
         }
+        // Update preview board
+        self.update_preview_board();
     }
 
     pub fn valid_move(
@@ -187,6 +199,14 @@ impl Game {
                 completed.push(y);
             }
         }
+        match completed.len() {
+            0 => {},
+            1 => self.score += 800,
+            2 => self.score += 1200,
+            3 => self.score += 1800,
+            4 => self.score += 2000,
+            _ => self.score += 3200,
+        }
         for y in completed.clone() {
             for x in 0..WIDTH {
                 self.board[y][x] = 0;
@@ -201,8 +221,70 @@ impl Game {
         }
     }
 
+    pub fn update_preview_board(&mut self) {
+        // Only update is preview shape has changed
+        if !(self.preview_shape.is_none()
+            || self.preview_shape.unwrap().shape_type != self.next_shape)
+        {
+            return;
+        }
+        for y in 0..4 {
+            for x in 0..4 {
+                self.preview_board[y][x] = 0;
+            }
+        }
+        match self.next_shape {
+            ShapeType::I => {
+                self.preview_board[0][1] = ShapeType::I as u8;
+                self.preview_board[1][1] = ShapeType::I as u8;
+                self.preview_board[2][1] = ShapeType::I as u8;
+                self.preview_board[3][1] = ShapeType::I as u8;
+            }
+            ShapeType::J => {
+                self.preview_board[0][1] = ShapeType::J as u8;
+                self.preview_board[1][1] = ShapeType::J as u8;
+                self.preview_board[2][1] = ShapeType::J as u8;
+                self.preview_board[2][0] = ShapeType::J as u8;
+            }
+            ShapeType::L => {
+                self.preview_board[0][1] = ShapeType::L as u8;
+                self.preview_board[1][1] = ShapeType::L as u8;
+                self.preview_board[2][1] = ShapeType::L as u8;
+                self.preview_board[2][2] = ShapeType::L as u8;
+            }
+            ShapeType::O => {
+                self.preview_board[0][1] = ShapeType::O as u8;
+                self.preview_board[0][2] = ShapeType::O as u8;
+                self.preview_board[1][1] = ShapeType::O as u8;
+                self.preview_board[1][2] = ShapeType::O as u8;
+            }
+            ShapeType::S => {
+                self.preview_board[0][1] = ShapeType::S as u8;
+                self.preview_board[0][2] = ShapeType::S as u8;
+                self.preview_board[1][0] = ShapeType::S as u8;
+                self.preview_board[1][1] = ShapeType::S as u8;
+            }
+            ShapeType::T => {
+                self.preview_board[0][1] = ShapeType::T as u8;
+                self.preview_board[1][0] = ShapeType::T as u8;
+                self.preview_board[1][1] = ShapeType::T as u8;
+                self.preview_board[1][2] = ShapeType::T as u8;
+            }
+            ShapeType::Z => {
+                self.preview_board[0][0] = ShapeType::Z as u8;
+                self.preview_board[0][1] = ShapeType::Z as u8;
+                self.preview_board[1][1] = ShapeType::Z as u8;
+                self.preview_board[1][2] = ShapeType::Z as u8;
+            }
+        }
+    }
+
     pub fn board_ref(&self) -> &[[u8; WIDTH]; HEIGHT] {
         &self.board
+    }
+
+    pub fn preview_board_ref(&self) -> &[[u8; 4]; 4] {
+        &self.preview_board
     }
 }
 

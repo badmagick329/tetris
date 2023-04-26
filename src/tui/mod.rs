@@ -48,12 +48,18 @@ impl Tui {
         }
     }
 
-    pub fn draw_board(&self, board: &[[u8; WIDTH]; HEIGHT]) {
+    pub fn draw_board(
+        &mut self,
+        board: &[[u8; WIDTH]; HEIGHT],
+        preview_board: &[[u8; 4]; 4],
+        score: usize,
+    ) {
         let mut stdout = stdout();
         let (width, height) = size().unwrap();
         let (width, height) = (width as usize, height as usize);
         let (x, y) = (width / 2 - WIDTH, height / 2 - (HEIGHT / 2));
         queue!(stdout, terminal::Clear(terminal::ClearType::All)).unwrap();
+        // Board borders
         queue!(
             stdout,
             cursor::MoveTo(x as u16, y as u16),
@@ -76,6 +82,7 @@ impl Tui {
             ResetColor,
         )
         .unwrap();
+        // Board content
         for i in 0..HEIGHT {
             for j in 0..WIDTH {
                 if board[i][j] != 0 {
@@ -90,6 +97,8 @@ impl Tui {
                 }
             }
         }
+        // Message
+        self.message = format!("Score: {}", score);
         queue!(
             stdout,
             cursor::MoveTo((x + 2) as u16, 1 as u16),
@@ -98,6 +107,51 @@ impl Tui {
             ResetColor,
         )
         .unwrap();
+        // Preview Board borders
+        queue!(
+            stdout,
+            cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + 1) as u16),
+            SetForegroundColor(Color::White),
+            Print("Next:"),
+            ResetColor,
+        )
+        .unwrap();
+        queue!(
+            stdout,
+            cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + 2) as u16),
+            Print(format!("┌{}┐", self.border.repeat(10))), // 4 * 2 + 2
+        )
+        .unwrap();
+        for i in 0..4 {
+            queue!(
+                stdout,
+                cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + i + 3) as u16),
+                Print(format!("│{}│", self.space.repeat(10))),
+            )
+            .unwrap();
+        }
+        queue!(
+            stdout,
+            cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + 7) as u16),
+            Print(format!("└{}┘", self.border.repeat(10))),
+        )
+        .unwrap();
+        // Preview Board content
+        for i in 0..4 {
+            for j in 0..4 {
+                if preview_board[i][j] != 0 {
+                    queue!(
+                        stdout,
+                        cursor::MoveTo(((x + WIDTH * 2 + 6) + j * 2) as u16, (y + i + 3) as u16),
+                        SetForegroundColor(self.colors[&preview_board[i][j]]),
+                        // SetForegroundColor(Color::Red),
+                        Print("██"),
+                        ResetColor,
+                    )
+                    .unwrap();
+                }
+            }
+        }
         queue!(stdout, cursor::MoveTo(0, height as u16)).unwrap();
         stdout.flush().unwrap();
     }
