@@ -1,4 +1,9 @@
 #![allow(unused_imports, dead_code, unused_variables)]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Dir {
     Right,
@@ -16,6 +21,20 @@ pub enum ShapeType {
     S = 5,
     T = 6,
     Z = 7,
+}
+
+impl ShapeType {
+    pub(crate) fn random() -> ShapeType {
+        match rand::thread_rng().gen_range(0..=6) {
+            0 => ShapeType::I,
+            1 => ShapeType::J,
+            2 => ShapeType::L,
+            3 => ShapeType::O,
+            4 => ShapeType::S,
+            5 => ShapeType::T,
+            _ => ShapeType::Z,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -76,19 +95,30 @@ impl Shape {
     fn to_coords_s(&self, dir: Dir) -> Vec<(isize, isize)> {
         let x = self.x as isize;
         let y = self.y as isize;
-        todo!()
+        match dir {
+            Dir::Right | Dir::Left => vec![(x, y), (x, y - 1), (x + 1, y - 1), (x - 1, y)],
+            Dir::Down | Dir::Up => vec![(x, y), (x, y - 1), (x + 1, y), (x + 1, y + 1)],
+        }
     }
 
     fn to_coords_t(&self, dir: Dir) -> Vec<(isize, isize)> {
         let x = self.x as isize;
         let y = self.y as isize;
-        todo!()
+        match dir {
+            Dir::Right => vec![(x, y), (x, y - 1), (x + 1, y), (x, y + 1)],
+            Dir::Down => vec![(x, y), (x - 1, y), (x + 1, y), (x, y + 1)],
+            Dir::Left => vec![(x, y), (x, y - 1), (x - 1, y), (x, y + 1)],
+            Dir::Up => vec![(x, y), (x, y - 1), (x - 1, y), (x + 1, y)],
+        }
     }
 
     fn to_coords_z(&self, dir: Dir) -> Vec<(isize, isize)> {
         let x = self.x as isize;
         let y = self.y as isize;
-        todo!()
+        match dir {
+            Dir::Right | Dir::Left => vec![(x, y), (x - 1, y), (x, y + 1), (x + 1, y + 1)],
+            Dir::Down | Dir::Up => vec![(x, y), (x + 1, y - 1), (x + 1, y), (x, y + 1)],
+        }
     }
 }
 
@@ -228,6 +258,69 @@ mod tests {
         assert_eq!(
             shape.to_coords(Dir::Up),
             vec![(0, 0), (0, -1), (0, 1), (1, 1)]
+        );
+    }
+
+    #[test]
+    fn test_shape_to_coords_s() {
+        let shape = create_shape(ShapeType::S);
+        assert_eq!(
+            shape.to_coords(Dir::Right),
+            vec![(0, 0), (0, -1), (1, -1), (-1, 0)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Down),
+            vec![(0, 0), (0, -1), (1, 0), (1, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Left),
+            vec![(0, 0), (0, -1), (1, -1), (-1, 0)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Up),
+            vec![(0, 0), (0, -1), (1, 0), (1, 1)]
+        );
+    }
+
+    #[test]
+    fn test_shape_to_coords_t() {
+        let shape = create_shape(ShapeType::T);
+        assert_eq!(
+            shape.to_coords(Dir::Right),
+            vec![(0, 0), (0, -1), (1, 0), (0, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Down),
+            vec![(0, 0), (-1, 0), (1, 0), (0, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Left),
+            vec![(0, 0), (0, -1), (-1, 0), (0, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Up),
+            vec![(0, 0), (0, -1), (-1, 0), (1, 0)]
+        );
+    }
+
+    #[test]
+    fn test_shape_to_coords_z() {
+        let shape = create_shape(ShapeType::Z);
+        assert_eq!(
+            shape.to_coords(Dir::Right),
+            vec![(0, 0), (-1, 0), (0, 1), (1, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Down),
+            vec![(0, 0), (1, -1), (1, 0), (0, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Left),
+            vec![(0, 0), (-1, 0), (0, 1), (1, 1)]
+        );
+        assert_eq!(
+            shape.to_coords(Dir::Up),
+            vec![(0, 0), (1, -1), (1, 0), (0, 1)]
         );
     }
 }

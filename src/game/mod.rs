@@ -6,7 +6,6 @@ use std::{
     rc::Rc,
     time::{self, Duration, Instant},
 };
-
 pub const WIDTH: usize = 12;
 pub const HEIGHT: usize = 20;
 const FALL_RATE: u128 = 750;
@@ -23,7 +22,7 @@ pub struct Game {
     board: [[u8; WIDTH]; HEIGHT],
     pub active_shape: Option<Shape>,
     game_over: bool,
-    pub fall_timer: Instant,
+    fall_timer: Instant,
 }
 
 impl Game {
@@ -49,7 +48,7 @@ impl Game {
         if self.game_over {
             return;
         }
-        // Handle falling
+        // Handle logic
         if self.active_shape.is_some() {
             if self.fall_timer.elapsed().as_millis() > FALL_RATE {
                 self.fall_timer = Instant::now();
@@ -72,25 +71,17 @@ impl Game {
                 }
             }
         } else {
-            self.spawn(ShapeType::I, WIDTH / 2, 0);
+            let random_shape = ShapeType::random();
+            self.spawn(random_shape, WIDTH / 2, 0);
         }
-        // Update state
-        // for shape in &mut self.shapes {
-        //     let coords = shape.to_coords(shape.dir);
-        //     for (x, y) in coords {
-        //         if x < 0 || x >= WIDTH as isize || y < 0 || y >= HEIGHT as isize {
-        //             continue;
-        //         }
-        //         self.board[y as usize][x as usize] = 1;
-        //     }
-        // }
+        // Update shape position
         if let Some(shape) = &mut self.active_shape {
             let coords = shape.to_coords(shape.dir);
             for (x, y) in coords {
                 if x < 0 || x >= WIDTH as isize || y < 0 || y >= HEIGHT as isize {
                     continue;
                 }
-                self.board[y as usize][x as usize] = 1;
+                self.board[y as usize][x as usize] = shape.shape_type as u8;
             }
         }
     }
@@ -149,7 +140,6 @@ impl Game {
                 new_coords = shape.to_coords(new_dir);
             }
         }
-        println!("Checking valid move for dir {:?}", dir);
         if self.valid_move(&old_coords, &new_coords) {
             match dir {
                 Move::Rotate => {

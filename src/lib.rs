@@ -56,7 +56,6 @@ pub fn run() {
             }
         }
         game.update();
-        term.message = format!("Fall timer: {:?}", game.fall_timer);
         term.draw_board(game.board_ref());
     }
     terminal::disable_raw_mode().unwrap();
