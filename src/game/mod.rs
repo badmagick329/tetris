@@ -21,7 +21,6 @@ pub enum Move {
 
 pub struct Game {
     board: [[u8; WIDTH]; HEIGHT],
-    shapes: Vec<Shape>,
     pub active_shape: Option<Shape>,
     game_over: bool,
     pub fall_timer: Instant,
@@ -31,7 +30,6 @@ impl Game {
     pub fn new() -> Self {
         Game {
             board: [[0; WIDTH]; HEIGHT],
-            shapes: Vec::new(),
             active_shape: None,
             game_over: false,
             fall_timer: Instant::now(),
@@ -44,14 +42,7 @@ impl Game {
             self.game_over = true;
             return;
         }
-        if self.active_shape.is_some() {
-            self.shapes.push(self.active_shape.take().unwrap());
-        }
         self.active_shape = Some(shape);
-    }
-
-    pub fn clear_board(&mut self) {
-        self.board = [[0; WIDTH]; HEIGHT];
     }
 
     pub fn update(&mut self) {
@@ -62,27 +53,37 @@ impl Game {
         if self.active_shape.is_some() {
             if self.fall_timer.elapsed().as_millis() > FALL_RATE {
                 self.fall_timer = Instant::now();
-                let old_coords = self.active_shape.as_ref().unwrap().to_coords(self.active_shape.as_ref().unwrap().dir);
+                let old_coords = self
+                    .active_shape
+                    .as_ref()
+                    .unwrap()
+                    .to_coords(self.active_shape.as_ref().unwrap().dir);
                 self.move_shape(Move::Down);
-                let new_coords = self.active_shape.as_ref().unwrap().to_coords(self.active_shape.as_ref().unwrap().dir);
+                let new_coords = self
+                    .active_shape
+                    .as_ref()
+                    .unwrap()
+                    .to_coords(self.active_shape.as_ref().unwrap().dir);
                 if old_coords == new_coords {
-                    self.shapes.push(self.active_shape.take().unwrap());
+                    self.shape_to_board();
+                    self.clear_completed();
+                } else {
+                    self.clear_coords(&old_coords);
                 }
             }
         } else {
             self.spawn(ShapeType::I, WIDTH / 2, 0);
         }
         // Update state
-        self.clear_board();
-        for shape in &mut self.shapes {
-            let coords = shape.to_coords(shape.dir);
-            for (x, y) in coords {
-                if x < 0 || x >= WIDTH as isize || y < 0 || y >= HEIGHT as isize {
-                    continue;
-                }
-                self.board[y as usize][x as usize] = 1;
-            }
-        }
+        // for shape in &mut self.shapes {
+        //     let coords = shape.to_coords(shape.dir);
+        //     for (x, y) in coords {
+        //         if x < 0 || x >= WIDTH as isize || y < 0 || y >= HEIGHT as isize {
+        //             continue;
+        //         }
+        //         self.board[y as usize][x as usize] = 1;
+        //     }
+        // }
         if let Some(shape) = &mut self.active_shape {
             let coords = shape.to_coords(shape.dir);
             for (x, y) in coords {
@@ -95,7 +96,7 @@ impl Game {
     }
 
     pub fn valid_move(
-        &self,
+        &mut self,
         old_coords: &Vec<(isize, isize)>,
         new_coords: &Vec<(isize, isize)>,
     ) -> bool {
@@ -153,14 +154,61 @@ impl Game {
             match dir {
                 Move::Rotate => {
                     shape.dir = shape.next_dir(shape.dir);
+                    self.clear_coords(&old_coords);
                 }
                 _ => {
                     shape.x = new_coords[0].0 as usize;
                     shape.y = new_coords[0].1 as usize;
+                    self.clear_coords(&old_coords);
                 }
             }
         }
         self.active_shape = Some(shape);
+    }
+
+    pub fn shape_to_board(&mut self) {
+        if self.active_shape.is_none() {
+            return;
+        }
+        let shape = self.active_shape.take().unwrap();
+        let coords = shape.to_coords(shape.dir);
+        for (x, y) in coords {
+            if x < 0 || x >= WIDTH as isize || y < 0 || y >= HEIGHT as isize {
+                continue;
+            }
+            self.board[y as usize][x as usize] = shape.shape_type as u8;
+        }
+    }
+
+    pub fn clear_coords(&mut self, coords: &Vec<(isize, isize)>) {
+        for (xv, yv) in coords {
+            let (x, y) = (*xv, *yv);
+            if x < 0 || x >= WIDTH as isize || y < 0 || y >= HEIGHT as isize {
+                continue;
+            }
+            self.board[y as usize][x as usize] = 0;
+        }
+    }
+
+    pub fn clear_completed(&mut self) {
+        let mut completed = Vec::new();
+        for (y, row) in self.board.iter().enumerate() {
+            if row.iter().all(|&x| x != 0) {
+                completed.push(y);
+            }
+        }
+        for y in completed.clone() {
+            for x in 0..WIDTH {
+                self.board[y][x] = 0;
+            }
+        }
+        for y in completed {
+            for y2 in (0..y).rev() {
+                for x in 0..WIDTH {
+                    self.board[y2 + 1][x] = self.board[y2][x];
+                }
+            }
+        }
     }
 
     pub fn board_ref(&self) -> &[[u8; WIDTH]; HEIGHT] {

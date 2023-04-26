@@ -22,13 +22,21 @@ impl Tui {
         Tui {
             colors: [
                 Color::Black, // 0 is empty
-                Color::Red,
-                Color::Green,
-                Color::Yellow,
-                Color::Blue,
-                Color::Magenta,
                 Color::Cyan,
-                Color::White,
+                Color::Blue,
+                Color::Rgb {
+                    r: 255,
+                    g: 165,
+                    b: 0,
+                }, // Orange
+                Color::Yellow,
+                Color::Rgb {
+                    r: 102,
+                    g: 255,
+                    b: 102,
+                }, // Light Green
+                Color::Magenta,
+                Color::Red,
             ]
             .iter()
             .enumerate()
