@@ -17,8 +17,8 @@ pub async fn run() {
         sound_loop(rx);
     });
     game_loop();
-    tx.send(1).await.unwrap();
-    sound_handle.await.unwrap();
+    tx.send(1).await.ok();
+    sound_handle.await.ok();
 }
 
 fn game_loop() {

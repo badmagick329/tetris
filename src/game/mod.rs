@@ -40,12 +40,8 @@ impl Game {
         }
     }
 
-    pub fn spawn(&mut self, shape_type: ShapeType, x: usize, y: usize) {
+    pub fn spawn(&mut self, shape_type: ShapeType, x: usize, y: isize) {
         let shape = Shape::new(x, y, shape_type);
-        if !self.valid_move(&shape.to_coords(shape.dir), &shape.to_coords(shape.dir)) {
-            self.game_over = true;
-            return;
-        }
         self.active_shape = Some(shape);
     }
 
@@ -77,8 +73,12 @@ impl Game {
                 }
             }
         } else {
+            if self.board[0].iter().any(|&x| x != 0) {
+                self.game_over = true;
+                return;
+            }
             let random_shape = ShapeType::random();
-            self.spawn(self.next_shape, WIDTH / 2, 0);
+            self.spawn(self.next_shape, WIDTH / 2, -1);
             self.next_shape = random_shape;
         }
         // Update shape position
@@ -102,13 +102,10 @@ impl Game {
     ) -> bool {
         for (xv, yv) in new_coords {
             let (x, y) = (*xv, *yv);
-            if y < 0 {
-                continue;
-            }
             if x < 0 || x >= WIDTH as isize || y >= HEIGHT as isize {
                 return false;
             }
-            if old_coords.contains(&(x, y)) {
+            if old_coords.contains(&(x, y)) || y < 0 {
                 continue;
             }
             if self.board[y as usize][x as usize] != 0 {
@@ -157,7 +154,7 @@ impl Game {
                 }
                 _ => {
                     shape.x = new_coords[0].0 as usize;
-                    shape.y = new_coords[0].1 as usize;
+                    shape.y = new_coords[0].1 as isize;
                     self.clear_coords(&old_coords);
                 }
             }

@@ -25,16 +25,20 @@ impl Player {
         if self.playing {
             return;
         }
+        self.playing = true;
         let file_path = Path::new(&self.sound_file);
         self.wav.load(file_path).unwrap();
-        self.sl.play(&self.wav);
-        while self.sl.voice_count() > 0 {
-            std::thread::sleep(std::time::Duration::from_millis(100));
-            if self.rx.try_recv().is_ok() {
-                self.sl.stop_all();
-                self.playing = false;
-                break;
+        while self.playing {
+            self.sl.play(&self.wav);
+            while self.sl.voice_count() > 0 {
+                std::thread::sleep(std::time::Duration::from_millis(100));
+                if self.rx.try_recv().is_ok() {
+                    self.sl.stop_all();
+                    self.playing = false;
+                    break;
+                }
             }
         }
+        self.playing = false;
     }
 }

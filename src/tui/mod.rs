@@ -168,7 +168,6 @@ impl Tui {
                             (y + i + (PSIZE - 1)) as u16
                         ),
                         SetForegroundColor(self.colors[&preview_board[i][j]]),
-                        // SetForegroundColor(Color::Red),
                         Print("██"),
                         ResetColor,
                     )

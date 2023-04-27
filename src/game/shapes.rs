@@ -38,11 +38,11 @@ pub struct Shape {
     pub dir: Dir,
     pub shape_type: ShapeType,
     pub x: usize,
-    pub y: usize,
+    pub y: isize,
 }
 
 impl Shape {
-    pub fn new(x: usize, y: usize, shape_type: ShapeType) -> Self {
+    pub fn new(x: usize, y: isize, shape_type: ShapeType) -> Self {
         Shape {
             dir: Dir::Right,
             shape_type,
