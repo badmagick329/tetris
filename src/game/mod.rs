@@ -229,22 +229,22 @@ impl Game {
         }
         match self.next_shape {
             ShapeType::I => {
-                self.preview_board[0][1] = ShapeType::I as u8;
-                self.preview_board[1][1] = ShapeType::I as u8;
-                self.preview_board[2][1] = ShapeType::I as u8;
+                self.preview_board[3][0] = ShapeType::I as u8;
                 self.preview_board[3][1] = ShapeType::I as u8;
+                self.preview_board[3][2] = ShapeType::I as u8;
+                self.preview_board[3][3] = ShapeType::I as u8;
             }
             ShapeType::J => {
-                self.preview_board[0][1] = ShapeType::J as u8;
+                self.preview_board[0][0] = ShapeType::J as u8;
+                self.preview_board[1][0] = ShapeType::J as u8;
                 self.preview_board[1][1] = ShapeType::J as u8;
-                self.preview_board[2][1] = ShapeType::J as u8;
-                self.preview_board[2][0] = ShapeType::J as u8;
+                self.preview_board[1][2] = ShapeType::J as u8;
             }
             ShapeType::L => {
-                self.preview_board[0][1] = ShapeType::L as u8;
+                self.preview_board[1][0] = ShapeType::L as u8;
                 self.preview_board[1][1] = ShapeType::L as u8;
-                self.preview_board[2][1] = ShapeType::L as u8;
-                self.preview_board[2][2] = ShapeType::L as u8;
+                self.preview_board[1][2] = ShapeType::L as u8;
+                self.preview_board[2][0] = ShapeType::L as u8;
             }
             ShapeType::O => {
                 self.preview_board[0][1] = ShapeType::O as u8;
@@ -254,21 +254,21 @@ impl Game {
             }
             ShapeType::S => {
                 self.preview_board[0][1] = ShapeType::S as u8;
-                self.preview_board[0][2] = ShapeType::S as u8;
-                self.preview_board[1][0] = ShapeType::S as u8;
                 self.preview_board[1][1] = ShapeType::S as u8;
+                self.preview_board[1][2] = ShapeType::S as u8;
+                self.preview_board[2][2] = ShapeType::S as u8;
             }
             ShapeType::T => {
                 self.preview_board[0][1] = ShapeType::T as u8;
-                self.preview_board[1][0] = ShapeType::T as u8;
                 self.preview_board[1][1] = ShapeType::T as u8;
                 self.preview_board[1][2] = ShapeType::T as u8;
+                self.preview_board[2][1] = ShapeType::T as u8;
             }
             ShapeType::Z => {
-                self.preview_board[0][0] = ShapeType::Z as u8;
-                self.preview_board[0][1] = ShapeType::Z as u8;
+                self.preview_board[1][0] = ShapeType::Z as u8;
                 self.preview_board[1][1] = ShapeType::Z as u8;
-                self.preview_board[1][2] = ShapeType::Z as u8;
+                self.preview_board[2][1] = ShapeType::Z as u8;
+                self.preview_board[2][2] = ShapeType::Z as u8;
             }
         }
     }
