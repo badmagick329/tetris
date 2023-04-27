@@ -1,15 +1,27 @@
-#![allow(unused_imports, dead_code, unused_mut)]
 mod game;
 mod tui;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::{event, terminal};
-use game::shapes::ShapeType;
+use game::sound::Player;
+use std::path::Path;
 use std::time::Duration;
 use tui::Tui;
+use tokio::sync::mpsc;
 
 const TICK_RATE: u64 = 250;
+const SOUND_FILE: &str = "soundtrack.mp3";
 
-pub fn run() {
+pub async fn run() {
+    let (tx, rx) = mpsc::channel::<usize>(1);
+    let sound_handle = tokio::spawn(async move {
+        sound_loop(rx);
+    });
+    game_loop();
+    tx.send(1).await.unwrap();
+    sound_handle.await.unwrap();
+}
+
+fn game_loop() {
     let mut term = Tui::new();
     let mut game = game::Game::new();
     // game.spawn(ShapeType::I, 5, 5);
@@ -57,6 +69,19 @@ pub fn run() {
         }
         game.update();
         term.draw_board(game.board_ref(), game.preview_board_ref(), game.score);
+        if game.game_over {
+            break;
+        }
     }
     terminal::disable_raw_mode().unwrap();
+}
+
+fn sound_loop(rx: mpsc::Receiver<usize>) {
+    let mut player = match Path::new(SOUND_FILE).exists() {
+        true => Some(Player::new(SOUND_FILE, rx)),
+        false => None,
+    };
+    if let Some(player) = &mut player {
+        player.play();
+    }
 }

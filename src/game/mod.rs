@@ -1,11 +1,7 @@
-#![allow(unused_imports, dead_code)]
 pub mod shapes;
-use shapes::{Dir, Shape, ShapeTrait, ShapeType};
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-    time::{self, Duration, Instant},
-};
+pub mod sound;
+use shapes::{Shape, ShapeTrait, ShapeType};
+use std::time::Instant;
 pub const WIDTH: usize = 12;
 pub const HEIGHT: usize = 20;
 const FALL_RATE: u128 = 750;
@@ -23,7 +19,7 @@ pub struct Game {
     preview_board: [[u8; 4]; 4],
     pub active_shape: Option<Shape>,
     preview_shape: Option<Shape>,
-    game_over: bool,
+    pub game_over: bool,
     fall_timer: Instant,
     next_shape: ShapeType,
     pub score: usize,
@@ -200,7 +196,7 @@ impl Game {
             }
         }
         match completed.len() {
-            0 => {},
+            0 => {}
             1 => self.score += 800,
             2 => self.score += 1200,
             3 => self.score += 1800,
@@ -291,6 +287,7 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::game::shapes::Dir;
 
     #[test]
     fn test_is_valid() {

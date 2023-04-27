@@ -1,8 +1,4 @@
-#![allow(unused_imports, dead_code, unused_variables)]
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
+use rand::Rng;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Dir {
@@ -86,7 +82,7 @@ impl Shape {
         }
     }
 
-    fn to_coords_o(&self, dir: Dir) -> Vec<(isize, isize)> {
+    fn to_coords_o(&self, _: Dir) -> Vec<(isize, isize)> {
         let x = self.x as isize;
         let y = self.y as isize;
         vec![(x, y), (x + 1, y), (x, y + 1), (x + 1, y + 1)]
@@ -154,8 +150,6 @@ impl ShapeTrait for Shape {
     /// # Arguments
     /// * `dir` - The direction to return the coordinates for
     fn to_coords(&self, dir: Dir) -> Vec<(isize, isize)> {
-        let x = self.x as isize;
-        let y = self.y as isize;
         match &self.shape_type {
             ShapeType::I => self.to_coords_i(dir),
             ShapeType::J => self.to_coords_j(dir),

@@ -1,5 +1,4 @@
-#![allow(unused_imports, dead_code)]
-use super::game::{Game, HEIGHT, WIDTH};
+use super::game::{HEIGHT, WIDTH};
 use crossterm::{
     cursor, queue,
     style::{Color, Print, ResetColor, SetForegroundColor},
@@ -7,7 +6,7 @@ use crossterm::{
 };
 use std::{
     collections::HashMap,
-    io::{stdout, Read, Write},
+    io::{stdout, Write},
 };
 
 pub struct Tui {
@@ -98,7 +97,7 @@ impl Tui {
             }
         }
         // Message
-        self.message = format!("Score: {}", score);
+        self.message = format!("Score: {} - Press q to quit", score);
         queue!(
             stdout,
             cursor::MoveTo((x + 2) as u16, 1 as u16),
