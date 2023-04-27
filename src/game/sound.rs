@@ -1,17 +1,17 @@
 use soloud::*;
 use std::path::Path;
-use tokio::sync::mpsc;
+use tokio::sync::mpsc::Receiver;
 
 pub struct Player {
     pub sl: Soloud,
     pub wav: audio::Wav,
     playing: bool,
     sound_file: String,
-    rx: mpsc::Receiver<usize>,
+    rx: Receiver<usize>,
 }
 
 impl Player {
-    pub fn new(sound_file: &str, rx: mpsc::Receiver<usize>) -> Self {
+    pub fn new(sound_file: &str, rx: Receiver<usize>) -> Self {
         Self {
             sl: Soloud::default().unwrap(),
             wav: audio::Wav::default(),

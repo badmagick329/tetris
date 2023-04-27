@@ -6,7 +6,7 @@ use game::sound::Player;
 use std::path::Path;
 use std::time::Duration;
 use tui::Tui;
-use tokio::sync::mpsc;
+use tokio::sync::mpsc::{self, Sender};
 
 const TICK_RATE: u64 = 250;
 const SOUND_FILE: &str = "soundtrack.mp3";
@@ -16,12 +16,12 @@ pub async fn run() {
     let sound_handle = tokio::spawn(async move {
         sound_loop(rx);
     });
-    game_loop();
+    game_loop(tx.clone()).await;
     tx.send(1).await.ok();
     sound_handle.await.ok();
 }
 
-fn game_loop() {
+async fn game_loop(tx: Sender<usize>) {
     let mut term = Tui::new();
     let mut game = game::Game::new();
     // game.spawn(ShapeType::I, 5, 5);
@@ -63,6 +63,29 @@ fn game_loop() {
                     ..
                 }) => {
                     game.move_shape(game::Move::Rotate);
+                }
+                Event::Key(KeyEvent {
+                    code: KeyCode::Char(' '),
+                    modifiers: KeyModifiers::NONE,
+                    ..
+                }) => {
+                    game.drop_shape();
+                }
+                Event::Key(KeyEvent {
+                    code: KeyCode::Char('p'),
+                    modifiers: KeyModifiers::NONE,
+                    ..
+                }) => {
+                    // TODO:
+                    // game.pause();
+                }
+                Event::Key(KeyEvent {
+                    code: KeyCode::Char('d'),
+                    modifiers: KeyModifiers::NONE,
+                    ..
+                }) => {
+                    // TODO:
+                    tx.send(1).await.ok();
                 }
                 _ => {}
             }

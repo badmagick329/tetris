@@ -61,10 +61,15 @@ impl Tui {
         self.draw_main_board(&mut stdout, board, x, y);
         self.draw_preview_board(&mut stdout, preview_board, x, y);
         // Message
-        self.message = format!("Score: {} - Press q to quit", score);
+        self.message = format!(
+            "Score: {} - q: quit | d: disable sound | Space: instant drop",
+            score
+        );
+        let m_offsetx = ((width - self.message.len()) / 2) as u16;
+        let m_offsety = (height - 3) as u16;
         queue!(
             stdout,
-            cursor::MoveTo((x + 2) as u16, 1_u16),
+            cursor::MoveTo(m_offsetx, m_offsety),
             SetForegroundColor(Color::White),
             Print(&self.message),
             ResetColor,

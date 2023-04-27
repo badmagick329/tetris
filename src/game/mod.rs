@@ -215,6 +215,29 @@ impl Game {
         }
     }
 
+    pub fn drop_shape(&mut self) {
+        if self.active_shape.is_none() {
+            return;
+        }
+        let mut shape = self.active_shape.take().unwrap();
+        let old_coords = shape.to_coords(shape.dir);
+        loop {
+            let mut new_coords = shape.to_coords(shape.dir);
+            for (_, y) in &mut new_coords {
+                *y += 1;
+            }
+            if self.valid_move(&old_coords, &new_coords) {
+                shape.y += 1;
+            } else {
+                break;
+            }
+        }
+        self.active_shape = Some(shape);
+        self.clear_coords(&old_coords);
+        self.shape_to_board();
+        self.clear_completed();
+    }
+
     pub fn update_preview_board(&mut self) {
         // Only update is preview shape has changed
         if !(self.preview_shape.is_none()
