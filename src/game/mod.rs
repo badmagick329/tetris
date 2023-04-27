@@ -4,6 +4,7 @@ use shapes::{Shape, ShapeTrait, ShapeType};
 use std::time::Instant;
 pub const WIDTH: usize = 12;
 pub const HEIGHT: usize = 20;
+pub const PSIZE: usize = 4;
 const FALL_RATE: u128 = 750;
 
 #[derive(Debug, PartialEq)]
@@ -16,7 +17,7 @@ pub enum Move {
 
 pub struct Game {
     board: [[u8; WIDTH]; HEIGHT],
-    preview_board: [[u8; 4]; 4],
+    preview_board: [[u8; PSIZE]; PSIZE],
     pub active_shape: Option<Shape>,
     preview_shape: Option<Shape>,
     pub game_over: bool,
@@ -29,7 +30,7 @@ impl Game {
     pub fn new() -> Self {
         Game {
             board: [[0; WIDTH]; HEIGHT],
-            preview_board: [[0; 4]; 4],
+            preview_board: [[0; PSIZE]; PSIZE],
             active_shape: None,
             preview_shape: None,
             game_over: false,
@@ -96,8 +97,8 @@ impl Game {
 
     pub fn valid_move(
         &mut self,
-        old_coords: &Vec<(isize, isize)>,
-        new_coords: &Vec<(isize, isize)>,
+        old_coords: &[(isize, isize)],
+        new_coords: &[(isize, isize)],
     ) -> bool {
         for (xv, yv) in new_coords {
             let (x, y) = (*xv, *yv);
@@ -224,8 +225,8 @@ impl Game {
         {
             return;
         }
-        for y in 0..4 {
-            for x in 0..4 {
+        for y in 0..PSIZE {
+            for x in 0..PSIZE {
                 self.preview_board[y][x] = 0;
             }
         }
@@ -279,7 +280,7 @@ impl Game {
         &self.board
     }
 
-    pub fn preview_board_ref(&self) -> &[[u8; 4]; 4] {
+    pub fn preview_board_ref(&self) -> &[[u8; PSIZE]; PSIZE] {
         &self.preview_board
     }
 }

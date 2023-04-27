@@ -1,4 +1,4 @@
-use super::game::{HEIGHT, WIDTH};
+use super::game::{HEIGHT, PSIZE, WIDTH};
 use crossterm::{
     cursor, queue,
     style::{Color, Print, ResetColor, SetForegroundColor},
@@ -50,7 +50,7 @@ impl Tui {
     pub fn draw_board(
         &mut self,
         board: &[[u8; WIDTH]; HEIGHT],
-        preview_board: &[[u8; 4]; 4],
+        preview_board: &[[u8; PSIZE]; PSIZE],
         score: usize,
     ) {
         let mut stdout = stdout();
@@ -58,6 +58,29 @@ impl Tui {
         let (width, height) = (width as usize, height as usize);
         let (x, y) = (width / 2 - WIDTH, height / 2 - (HEIGHT / 2));
         queue!(stdout, terminal::Clear(terminal::ClearType::All)).unwrap();
+        self.draw_main_board(&mut stdout, board, x, y);
+        self.draw_preview_board(&mut stdout, preview_board, x, y);
+        // Message
+        self.message = format!("Score: {} - Press q to quit", score);
+        queue!(
+            stdout,
+            cursor::MoveTo((x + 2) as u16, 1_u16),
+            SetForegroundColor(Color::White),
+            Print(&self.message),
+            ResetColor,
+        )
+        .unwrap();
+        queue!(stdout, cursor::MoveTo(0, height as u16)).unwrap();
+        stdout.flush().unwrap();
+    }
+
+    fn draw_main_board(
+        &self,
+        stdout: &mut std::io::Stdout,
+        board: &[[u8; WIDTH]; HEIGHT],
+        x: usize,
+        y: usize,
+    ) {
         // Board borders
         queue!(
             stdout,
@@ -96,20 +119,19 @@ impl Tui {
                 }
             }
         }
-        // Message
-        self.message = format!("Score: {} - Press q to quit", score);
-        queue!(
-            stdout,
-            cursor::MoveTo((x + 2) as u16, 1 as u16),
-            SetForegroundColor(Color::White),
-            Print(&self.message),
-            ResetColor,
-        )
-        .unwrap();
+    }
+
+    fn draw_preview_board(
+        &self,
+        stdout: &mut std::io::Stdout,
+        preview_board: &[[u8; PSIZE]; PSIZE],
+        x: usize,
+        y: usize,
+    ) {
         // Preview Board borders
         queue!(
             stdout,
-            cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + 1) as u16),
+            cursor::MoveTo((x + WIDTH * 2 + PSIZE) as u16, (y + 1) as u16),
             SetForegroundColor(Color::White),
             Print("Next:"),
             ResetColor,
@@ -117,31 +139,34 @@ impl Tui {
         .unwrap();
         queue!(
             stdout,
-            cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + 2) as u16),
-            Print(format!("┌{}┐", self.border.repeat(10))), // 4 * 2 + 2
+            cursor::MoveTo((x + WIDTH * 2 + PSIZE) as u16, (y + 2) as u16),
+            Print(format!("┌{}┐", self.border.repeat(PSIZE * 2 + 2))),
         )
         .unwrap();
-        for i in 0..4 {
+        for i in 0..PSIZE {
             queue!(
                 stdout,
-                cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + i + 3) as u16),
-                Print(format!("│{}│", self.space.repeat(10))),
+                cursor::MoveTo((x + WIDTH * 2 + PSIZE) as u16, (y + i + 3) as u16),
+                Print(format!("│{}│", self.space.repeat(PSIZE * 2 + 2))),
             )
             .unwrap();
         }
         queue!(
             stdout,
-            cursor::MoveTo((x + WIDTH * 2 + 4) as u16, (y + 7) as u16),
-            Print(format!("└{}┘", self.border.repeat(10))),
+            cursor::MoveTo((x + WIDTH * 2 + PSIZE) as u16, (y + (PSIZE + 3)) as u16),
+            Print(format!("└{}┘", self.border.repeat(PSIZE * 2 + 2))),
         )
         .unwrap();
         // Preview Board content
-        for i in 0..4 {
-            for j in 0..4 {
+        for i in 0..PSIZE {
+            for j in 0..PSIZE {
                 if preview_board[i][j] != 0 {
                     queue!(
                         stdout,
-                        cursor::MoveTo(((x + WIDTH * 2 + 6) + j * 2) as u16, (y + i + 3) as u16),
+                        cursor::MoveTo(
+                            ((x + WIDTH * 2 + (PSIZE + (PSIZE / 2))) + j * 2) as u16,
+                            (y + i + (PSIZE - 1)) as u16
+                        ),
                         SetForegroundColor(self.colors[&preview_board[i][j]]),
                         // SetForegroundColor(Color::Red),
                         Print("██"),
@@ -151,7 +176,5 @@ impl Tui {
                 }
             }
         }
-        queue!(stdout, cursor::MoveTo(0, height as u16)).unwrap();
-        stdout.flush().unwrap();
     }
 }

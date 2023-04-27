@@ -26,7 +26,7 @@ impl Player {
             return;
         }
         let file_path = Path::new(&self.sound_file);
-        self.wav.load(&file_path).unwrap();
+        self.wav.load(file_path).unwrap();
         self.sl.play(&self.wav);
         while self.sl.voice_count() > 0 {
             std::thread::sleep(std::time::Duration::from_millis(100));
