@@ -24,6 +24,7 @@ pub struct Game {
     fall_timer: Instant,
     next_shape: ShapeType,
     pub score: usize,
+    pub paused: bool,
 }
 
 impl Game {
@@ -37,6 +38,7 @@ impl Game {
             fall_timer: Instant::now(),
             next_shape: ShapeType::random(),
             score: 0,
+            paused: false,
         }
     }
 
@@ -46,7 +48,7 @@ impl Game {
     }
 
     pub fn update(&mut self) {
-        if self.game_over {
+        if self.game_over || self.paused {
             return;
         }
         // Handle logic
@@ -239,7 +241,7 @@ impl Game {
     }
 
     pub fn update_preview_board(&mut self) {
-        // Only update is preview shape has changed
+        // Only update if preview shape has changed
         if !(self.preview_shape.is_none()
             || self.preview_shape.unwrap().shape_type != self.next_shape)
         {

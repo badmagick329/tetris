@@ -76,15 +76,13 @@ async fn game_loop(tx: Sender<usize>) {
                     modifiers: KeyModifiers::NONE,
                     ..
                 }) => {
-                    // TODO:
-                    // game.pause();
+                    game.paused = !game.paused;
                 }
                 Event::Key(KeyEvent {
                     code: KeyCode::Char('d'),
                     modifiers: KeyModifiers::NONE,
                     ..
                 }) => {
-                    // TODO:
                     tx.send(1).await.ok();
                 }
                 _ => {}

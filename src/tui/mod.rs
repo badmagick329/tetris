@@ -43,7 +43,7 @@ impl Tui {
             .collect(),
             border: "─",
             space: " ",
-            message: "Press 'q' to quit.".to_string(),
+            message: String::new(),
         }
     }
 
@@ -62,20 +62,10 @@ impl Tui {
         self.draw_preview_board(&mut stdout, preview_board, x, y);
         // Message
         self.message = format!(
-            "Score: {} - q: quit | d: disable sound | Space: instant drop",
+            "Score: {}\nq: quit | d: disable sound | Space: instant drop | p: pause",
             score
         );
-        let m_offsetx = ((width - self.message.len()) / 2) as u16;
-        let m_offsety = (height - 3) as u16;
-        queue!(
-            stdout,
-            cursor::MoveTo(m_offsetx, m_offsety),
-            SetForegroundColor(Color::White),
-            Print(&self.message),
-            ResetColor,
-        )
-        .unwrap();
-        queue!(stdout, cursor::MoveTo(0, height as u16)).unwrap();
+        self.draw_messages(&mut stdout, width, height);
         stdout.flush().unwrap();
     }
 
@@ -180,5 +170,33 @@ impl Tui {
                 }
             }
         }
+    }
+
+    fn draw_messages(&self, stdout: &mut std::io::Stdout, width: usize, height: usize) {
+        if self.message.is_empty() {
+            return;
+        }
+        let messages = self.message.split('\n').collect::<Vec<&str>>();
+        let m_offsetx = ((width - messages[0].len()) / 2) as u16;
+        let m_offsety = (height - 3) as u16;
+        queue!(
+            stdout,
+            cursor::MoveTo(m_offsetx, m_offsety),
+            SetForegroundColor(Color::White),
+            Print(messages[0]),
+            ResetColor,
+        )
+        .unwrap();
+        let m_offsetx = ((width - messages[1].len()) / 2) as u16;
+        let m_offsety = (height - 2) as u16;
+        queue!(
+            stdout,
+            cursor::MoveTo(m_offsetx, m_offsety),
+            SetForegroundColor(Color::White),
+            Print(messages[1]),
+            ResetColor,
+        )
+        .unwrap();
+        queue!(stdout, cursor::MoveTo(0, height as u16)).unwrap();
     }
 }
