@@ -124,7 +124,7 @@ impl Game {
         if self.active_shape.is_none() {
             return;
         }
-        let mut shape = self.active_shape.take().unwrap();
+        let mut shape = self.active_shape.unwrap();
         let old_coords = shape.to_coords(shape.dir);
         let mut new_coords = old_coords.clone();
         match dir {
