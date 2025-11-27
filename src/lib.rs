@@ -1,12 +1,12 @@
 mod game;
 mod tui;
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use crossterm::{event, terminal};
 use game::sound::Player;
 use std::path::Path;
 use std::time::Duration;
-use tui::Tui;
 use tokio::sync::mpsc::{self, Sender};
+use tui::Tui;
 
 const TICK_RATE: u64 = 250;
 const SOUND_FILE: &str = "soundtrack.mp3";
@@ -32,6 +32,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Char('q'),
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     break;
@@ -39,6 +40,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Left,
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     game.move_shape(game::Move::Left);
@@ -46,6 +48,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Right,
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     game.move_shape(game::Move::Right);
@@ -53,6 +56,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Down,
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     game.move_shape(game::Move::Down);
@@ -60,6 +64,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Up,
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     game.move_shape(game::Move::Rotate);
@@ -67,6 +72,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Char(' '),
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     game.drop_shape();
@@ -74,6 +80,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Char('p'),
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     game.paused = !game.paused;
@@ -81,6 +88,7 @@ async fn game_loop(tx: Sender<usize>) {
                 Event::Key(KeyEvent {
                     code: KeyCode::Char('d'),
                     modifiers: KeyModifiers::NONE,
+                    kind: KeyEventKind::Press,
                     ..
                 }) => {
                     tx.send(1).await.ok();
