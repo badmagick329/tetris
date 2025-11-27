@@ -2,6 +2,9 @@
 
 A classic Tetris game for the terminal, written in Rust.
 
+![Demo](https://github.com/user-attachments/assets/9564a471-79b0-4dd3-95dc-9b3f47b1999e)
+
+
 ## Features
 
 - 📊 Score tracking with bonus points for clearing multiple lines
